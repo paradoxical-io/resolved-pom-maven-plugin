@@ -48,11 +48,7 @@ public class ResolvePomMojo extends AbstractMojo {
     @Component
     private MavenProjectHelper projectHelper;
 
-    public void execute()
-        throws MojoExecutionException {
-        //        ( File from, File to, boolean filtering, MavenProject mavenProject,
-        //        List<String> filters, boolean escapedBackslashesInFilePath, String encoding,
-        //        MavenSession mavenSession, Properties additionalProperties
+    public void execute() throws MojoExecutionException {
 
         final Properties additionalProperties = new Properties();
 
@@ -66,11 +62,11 @@ public class ResolvePomMojo extends AbstractMojo {
             pomFile, // from
             resolvedPomFile, // to
             true, // filtering
-            null, // mavenProject
-            new ArrayList<String>(), // filters
-            false, // escapedBackslashesInFilePath?
-            null, // encoding -!!!!
-            null, // mavenSession
+            null, // mavenProject - setting null means not to pull in project properties :)
+            new ArrayList<String>(), // filter .properties files to use
+            false, // escapedBackslashesInFilePath? not sure...
+            null, // encoding -!!!! Should probably set this to project.build.sourceEncoding or w/e
+            null, // mavenSession - setting to null means no session properties :)
             additionalProperties // additionalProperties
         );
 
@@ -82,23 +78,25 @@ public class ResolvePomMojo extends AbstractMojo {
             throw new MojoExecutionException("Failed to create a filtred pom", e);
         }
 
-        artifact.addMetadata(new ProjectArtifactMetadata(artifact, resolvedPomFile) {
-            @Override
-            public Object getKey() {
-                return super.getKey();
-            }
-
-            @Override
-            public void merge(final org.apache.maven.artifact.metadata.ArtifactMetadata metadata) {
-                // don't do anything
-                getLog().info("Go a request to merge metadata for: " + metadata.getKey() + " " + metadata.getRemoteFilename());
-            }
-        });
+        artifact.addMetadata(new ResolvedProjectArtifactMetadata(artifact, resolvedPomFile));
 
         for (ArtifactMetadata metadata : artifact.getMetadataList()) {
-            getLog().info(String.format("metadata: %s - %s", metadata.getKey(), metadata.getClass().getSimpleName()));
+            getLog().debug(String.format("Known metadata: %s - %s", metadata.getKey(), metadata.getClass().getCanonicalName()));
         }
 
         projectHelper.attachArtifact(project, "pom", resolvedPomFile);
+    }
+
+    private class ResolvedProjectArtifactMetadata extends ProjectArtifactMetadata {
+
+        public ResolvedProjectArtifactMetadata(final Artifact artifact, final File file) {
+            super(artifact, file);
+        }
+
+        @Override
+        public void merge(final org.apache.maven.artifact.metadata.ArtifactMetadata metadata) {
+            // don't do anything
+            getLog().info("Go a request to merge metadata for: " + metadata.getKey() + " " + metadata.getRemoteFilename());
+        }
     }
 }
