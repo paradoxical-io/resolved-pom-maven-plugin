@@ -16,7 +16,7 @@ Install with
     <executions>
         <execution>
             <id>resolve-my-pom</id>
-            <phase>validate</phase>
+            <phase>initialize</phase>
             <goals>
                 <goal>resolve-pom</goal>
             </goals>
