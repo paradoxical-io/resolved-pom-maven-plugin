@@ -7,7 +7,7 @@ Install with
 <plugin>
     <groupId>io.paradoxical</groupId>
     <artifactId>resolved-pom-maven-plugin</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <configuration>
         <properties>
             <revision>${revision}</revision>
@@ -19,14 +19,6 @@ Install with
             <phase>validate</phase>
             <goals>
                 <goal>resolve-pom</goal>
-            </goals>
-        </execution>
-        <execution>
-            <!-- If you're gpg signing artifacts -->
-            <id>touch-pom-signature</id>
-            <phase>install</phase>
-            <goals>
-                <goal>touch-signature</goal>
             </goals>
         </execution>
     </executions>
@@ -47,15 +39,26 @@ With this plugin, you can use the `${revision}` style versioning and still _easi
 [Release:DeadAndBurried]: https://axelfontaine.com/blog/dead-burried.html
 [Release-Pom-Fix]: https://axelfontaine.com/blog/maven-releases-steroids-2.html
 
+## Other plugins
+After this project was built I found another plugin that does the basically same thing (and in some ways was better!)
+
+- https://github.com/sap-production/resolve-pom-maven-plugin
+
+The only difference is that it replaces every property in the pom with it's filtered versions
+where as this plugin uses a white-listed approach.
+
 ## Maven Internals
 
-I spent a HUGE amount of time looking through maven plugins and
-internals to figure out the easiest way to trick maven into doing what i want :)
+I spent a __good__ amount of time looking through maven plugins and
+internals to figure out the easiest way to trick maven into doing what I want :)
 
 Here is some of the resources i used:
 
 ### Internals
 -  [Filtering]: Understanding what filtering is doing
+
+[Filtering]: https://github.com/finalist/Maven-Filtering/blob/master/src/main/java/org/apache/maven/shared/filtering/DefaultMavenFileFilter.java
+
 
 ### Plugins
 - [Resources][Resources-Mojo]: useful as a how to do filtering refernce
@@ -63,14 +66,14 @@ Here is some of the resources i used:
 - [Gpg:Sign][GpgSign-Mojo]: Useful to figure out what order signatures are added
 - [Nexus:Deploy][Nexus:Deploy-Mojo]: If you want to undestand that crazy that is the nexus deploy plugin
 
+[Resources-Mojo]: https://github.com/apache/maven-plugins/blob/trunk/maven-resources-plugin/src/main/java/org/apache/maven/plugins/resources/ResourcesMojo.java
+[Install-Mojo]: https://github.com/apache/maven-plugins/blob/trunk/maven-install-plugin/src/main/java/org/apache/maven/plugin/install/InstallMojo.java
+[GpgSign-Mojo]: https://github.com/apache/maven-plugins/blob/trunk/maven-gpg-plugin/src/main/java/org/apache/maven/plugin/gpg/GpgSignAttachedMojo.java
+[Nexus:Deploy-Mojo]: https://github.com/sonatype/nexus-maven-plugins/blob/master/staging/maven-plugin/src/main/java/org/sonatype/nexus/maven/staging/deploy/DeployMojo.java
+
 ### Misc
 
 - Nexus staging plugin options: https://github.com/sonatype/nexus-maven-plugins/tree/master/staging/maven-plugin
 - Maven plugin execution order: http://www.mkyong.com/maven/maven-plugin-execution-order-in-same-phase/
 - Plexus utils: the deep dark stuff of maven. https://github.com/codehaus-plexus/plexus-utils/blob/master/src/main/java/org/codehaus/plexus/util/FileUtils.java
 
-[Resources-Mojo]: https://github.com/apache/maven-plugins/blob/trunk/maven-resources-plugin/src/main/java/org/apache/maven/plugins/resources/ResourcesMojo.java
-[Install-Mojo]: https://github.com/apache/maven-plugins/blob/trunk/maven-install-plugin/src/main/java/org/apache/maven/plugin/install/InstallMojo.java
-[GpgSign-Mojo]: https://github.com/apache/maven-plugins/blob/trunk/maven-gpg-plugin/src/main/java/org/apache/maven/plugin/gpg/GpgSignAttachedMojo.java
-[Nexus:Deploy-Mojo]: https://github.com/sonatype/nexus-maven-plugins/blob/master/staging/maven-plugin/src/main/java/org/sonatype/nexus/maven/staging/deploy/DeployMojo.java
-[Filtering]: https://github.com/finalist/Maven-Filtering/blob/master/src/main/java/org/apache/maven/shared/filtering/DefaultMavenFileFilter.java
