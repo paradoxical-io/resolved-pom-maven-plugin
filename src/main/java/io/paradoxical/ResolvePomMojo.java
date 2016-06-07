@@ -33,6 +33,9 @@ public class ResolvePomMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.file}", required = true, readonly = true)
     private File pomFile;
 
+    @Parameter(property = "encoding", defaultValue = "${project.build.sourceEncoding}", required = true, readonly = true)
+    protected String encoding;
+
     @Parameter(defaultValue = "${project.build.directory}/resolved-pom/pom.xml", required = true, readonly = false)
     private File resolvedPomFile;
 
@@ -51,6 +54,7 @@ public class ResolvePomMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException {
 
         final Properties additionalProperties = new Properties();
+        final boolean enableFiltering = true;
 
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             additionalProperties.put(entry.getKey(), entry.getValue() == null ? "" : entry.getValue());
@@ -61,11 +65,11 @@ public class ResolvePomMojo extends AbstractMojo {
         final MavenFileFilterRequest mavenFileFilterRequest = new MavenFileFilterRequest(
             pomFile, // from
             resolvedPomFile, // to
-            true, // filtering
+            enableFiltering, // filtering
             null, // mavenProject - setting null means not to pull in project properties :)
             new ArrayList<String>(), // filter .properties files to use
             false, // escapedBackslashesInFilePath? not sure...
-            null, // encoding -!!!! Should probably set this to project.build.sourceEncoding or w/e
+            encoding, // encoding - Should probably set this to project.build.sourceEncoding
             null, // mavenSession - setting to null means no session properties :)
             additionalProperties // additionalProperties
         );
@@ -80,11 +84,10 @@ public class ResolvePomMojo extends AbstractMojo {
 
         artifact.addMetadata(new ResolvedProjectArtifactMetadata(artifact, resolvedPomFile));
 
-        for (ArtifactMetadata metadata : artifact.getMetadataList()) {
-            getLog().debug(String.format("Known metadata: %s - %s", metadata.getKey(), metadata.getClass().getCanonicalName()));
-        }
+        project.setFile(resolvedPomFile);
 
-        projectHelper.attachArtifact(project, "pom", resolvedPomFile);
+        // Not needed after the above method was found
+//        projectHelper.attachArtifact(project, "pom", resolvedPomFile);
     }
 
     private class ResolvedProjectArtifactMetadata extends ProjectArtifactMetadata {
@@ -96,7 +99,7 @@ public class ResolvePomMojo extends AbstractMojo {
         @Override
         public void merge(final org.apache.maven.artifact.metadata.ArtifactMetadata metadata) {
             // don't do anything
-            getLog().info("Go a request to merge metadata for: " + metadata.getKey() + " " + metadata.getRemoteFilename());
+            getLog().info("Got a request to merge metadata for: " + metadata.getKey() + " " + metadata.getRemoteFilename());
         }
     }
 }
