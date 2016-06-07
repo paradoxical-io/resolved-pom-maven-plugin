@@ -30,11 +30,11 @@ Install with
 If you ever wanted to auto version your artifacts,
 you may have found [this][Release:DeadAndBurried] article describing what appears to be a simple way of doing so.
 
-The problem comes when you try it, ${revision} doesn't get replaced in the distributed pom files (the ones up on maven central.)
+The problem comes when you try it, `${revision}` doesn't get replaced in the distributed pom files (the ones up on maven central.)
 This causes _huge_ issues with maven transitive dependency resolution. There was a [fix][Release-Pom-Fix] posted a while ago to address some of the problems
 However this solution doesn't address when you need to GPG sign your artifacts (like you do to relase to maven central.)
 
-With this plugin, you can use the `${revision}` style versioning and still _easily_ deploy to maven central
+With this plugin, you can use the `${revision}` style versioning and still __easily__ deploy to maven central
 
 [Release:DeadAndBurried]: https://axelfontaine.com/blog/dead-burried.html
 [Release-Pom-Fix]: https://axelfontaine.com/blog/maven-releases-steroids-2.html
@@ -61,10 +61,10 @@ Here is some of the resources i used:
 
 
 ### Plugins
-- [Resources][Resources-Mojo]: useful as a how to do filtering refernce
+- [Resources][Resources-Mojo]: useful as a how to do filtering reference
 - [Install][Install-Mojo]: this is where poms are installed by default, also useful for the stupid lastModified check they do on files
 - [Gpg:Sign][GpgSign-Mojo]: Useful to figure out what order signatures are added
-- [Nexus:Deploy][Nexus:Deploy-Mojo]: If you want to undestand that crazy that is the nexus deploy plugin
+- [Nexus:Deploy][Nexus:Deploy-Mojo]: If you want to understand that crazy that is the nexus deploy plugin
 
 [Resources-Mojo]: https://github.com/apache/maven-plugins/blob/trunk/maven-resources-plugin/src/main/java/org/apache/maven/plugins/resources/ResourcesMojo.java
 [Install-Mojo]: https://github.com/apache/maven-plugins/blob/trunk/maven-install-plugin/src/main/java/org/apache/maven/plugin/install/InstallMojo.java
