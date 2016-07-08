@@ -32,13 +32,16 @@ public class ResolvePomMojo extends AbstractMojo {
     private File pomFile;
 
     @Parameter(property = "encoding", defaultValue = "${project.build.sourceEncoding}")
-    protected String encoding;
+    private String encoding;
 
     @Parameter(defaultValue = "${project.build.directory}/resolved-pom.xml", required = true)
     private File resolvedPomFile;
 
     @Parameter(required = true)
     private Map<String, String> properties;
+
+    @Parameter(property = "resolve-pom.overwrite", defaultValue = "true", required = false)
+    private boolean overwriteExisting;
 
     @Component(role = MavenFileFilter.class, hint = "default")
     private MavenFileFilter fileFilter;
@@ -48,8 +51,12 @@ public class ResolvePomMojo extends AbstractMojo {
 
     public void execute() throws MojoExecutionException {
 
+        if(resolvedPomFile.equals(pomFile)) {
+            getLog().warn("Input pom file is the same as the output pom... skipping");
+            return;
+        }
+
         final Properties additionalProperties = new Properties();
-        final boolean enableFiltering = true;
 
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             additionalProperties.put(entry.getKey(), entry.getValue() == null ? "" : entry.getValue());
@@ -62,6 +69,26 @@ public class ResolvePomMojo extends AbstractMojo {
 
         getLog().debug(String.format("Ensure output directory %s : %s", outputDirectory.getName(), createdOutputDirectory));
 
+
+        if (!resolvedPomFile.exists() || overwriteExisting) {
+            resolvePom(additionalProperties);
+        }
+        else {
+            getLog().info(String.format("output file already exists at %s if you wanted to overwrite it set resolve-pom.overwrite=true",
+                                        resolvedPomFile));
+        }
+
+        artifact.addMetadata(new ResolvedProjectArtifactMetadata(artifact, resolvedPomFile));
+
+        project.setFile(resolvedPomFile);
+
+        // Not needed after the above method was found
+        //        projectHelper.attachArtifact(project, "pom", resolvedPomFile);
+    }
+
+    private void resolvePom(final Properties additionalProperties) throws MojoExecutionException {
+        final boolean enableFiltering = true;
+
         try {
             final boolean createdResolvedPomFile = resolvedPomFile.createNewFile();
             getLog().debug(String.format("Ensure output file %s : %s", resolvedPomFile.getName(), createdResolvedPomFile));
@@ -71,15 +98,15 @@ public class ResolvePomMojo extends AbstractMojo {
         }
 
         final MavenFileFilterRequest mavenFileFilterRequest = new MavenFileFilterRequest(
-            pomFile, // from
-            resolvedPomFile, // to
-            enableFiltering, // filtering
-            null, // mavenProject - setting null means not to pull in project properties :)
-            new ArrayList<String>(), // filter .properties files to use
-            false, // escapedBackslashesInFilePath? not sure...
-            encoding, // encoding - Should probably set this to project.build.sourceEncoding
-            null, // mavenSession - setting to null means no session properties :)
-            additionalProperties // additionalProperties
+                pomFile, // from
+                resolvedPomFile, // to
+                enableFiltering, // filtering
+                null, // mavenProject - setting null means not to pull in project properties :)
+                new ArrayList<String>(), // filter .properties files to use
+                false, // escapedBackslashesInFilePath? not sure...
+                encoding, // encoding - Should probably set this to project.build.sourceEncoding
+                null, // mavenSession - setting to null means no session properties :)
+                additionalProperties // additionalProperties
         );
 
         try {
@@ -91,13 +118,6 @@ public class ResolvePomMojo extends AbstractMojo {
         }
 
         getLog().info(String.format("Filtered pom to %s", resolvedPomFile));
-
-        artifact.addMetadata(new ResolvedProjectArtifactMetadata(artifact, resolvedPomFile));
-
-        project.setFile(resolvedPomFile);
-
-        // Not needed after the above method was found
-        //        projectHelper.attachArtifact(project, "pom", resolvedPomFile);
     }
 
     private class ResolvedProjectArtifactMetadata extends ProjectArtifactMetadata {
