@@ -52,7 +52,11 @@ public class ResolvePomMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException {
 
         if(resolvedPomFile.equals(pomFile)) {
-            getLog().warn("Input pom file is the same as the output pom... skipping");
+            getLog().info(String.format(
+                    "Input pom file %s is the same as the output pom %s, " +
+                    "this happens for multiple runs in the same build, and is probably safe to ignore",
+                    pomFile,
+                    resolvedPomFile));
             return;
         }
 
