@@ -1,5 +1,8 @@
 # resolved-pom-maven-plugin
 
+[![Build Status](https://travis-ci.org/paradoxical-io/resolved-pom-maven-plugin.svg?branch=v1.0)](https://travis-ci.org/paradoxical-io/resolved-pom-maven-plugin)
+[![Maven Central](https://img.shields.io/maven-central/v/io.paradoxical/resolved-pom-maven-plugin.svg?maxAge=2592000)](http://search.maven.org/#search%7Cga%7C1%7Cg%3Aio.paradoxical%20a%3A%22resolved-pom-maven-plugin%22)
+
 ## What
 
 Install with
